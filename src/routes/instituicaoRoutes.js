@@ -11,13 +11,11 @@ router.post('/acessar', instituicaoController.loginUsuario);
 router.get('/home', instituicaoController.homeView); // Atualizado para usar o controlador
 router.get('/configuracao', instituicaoController.configuracaoView); // Atualizado para usar o controlador
 
+router.post('/confirmar_doacao', instituicaoController.confirmarDoacao); // Certifique-se de que esta rota está definida
+
 router.get('/logout', (req, res) => {
-    req.session.destroy(err => {
-        if (err) {
-            console.error('Erro ao destruir a sessão:', err);
-        }
-        res.redirect('/');
-    });
+    req.session.destroy(); // Destruir a sessão ao fazer logout
+    res.redirect('/');
 });
 
 module.exports = router;

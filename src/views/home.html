@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <title>DoarMais</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="/styles.css" rel="stylesheet"> <!-- Incluir o arquivo CSS -->
-    <link href="https://fonts.googleapis.com/css2?family=Ultra&display=swap" rel="stylesheet"> <!-- Incluir a fonte Ultra -->
+    <link href="https://fonts.googleapis.com/css2?family=Ultra&display=swap" rel="stylesheet">
+    <!-- Incluir a fonte Ultra -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
 </head>
 
@@ -38,6 +40,9 @@
                         <tr>
                             <th scope="col">Nome da Instituição</th>
                             <th scope="col">Categoria</th>
+                            <th scope="col">Necessidades</th>
+                            <th scope="col">Contato</th>
+                            <th scope="col">Doar</th> <!-- Nova coluna -->
                         </tr>
                     </thead>
                     <tbody>
@@ -45,13 +50,108 @@
                         <tr>
                             <td>{{nome}}</td>
                             <td>{{categoria}}</td>
+                            <td>
+                                {{#necessidades}}
+                                {{.}},
+                                {{/necessidades}}
+                            </td>
+                            <td>{{contato}}</td>
+                            <td>
+                                <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                                    data-bs-target="#doarModal-{{instituicaoID}}">
+                                    DOAR
+                                </button>
+                            </td> <!-- Botão DOAR -->
                         </tr>
                         {{/instituicoes}}
                     </tbody>
                 </table>
             </div>
         </div>
-
     </div>
+
+    <!-- Modal para Doação -->
+    {{#instituicoes}}
+    <div class="modal fade" id="doarModal-{{instituicaoID}}" tabindex="-1"
+        aria-labelledby="doarModalLabel-{{instituicaoID}}" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="doarModalLabel-{{instituicaoID}}">Realizar Doação - {{nome}}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <ul class="list-group">
+                        {{#necessidades}}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            {{.}}
+                            <button class="btn btn-sm btn-primary"
+                                onclick="toggleDonation('{{instituicaoID}}', '{{.}}', this)">+</button>
+                        </li>
+                        {{/necessidades}}
+                    </ul>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                    <button type="button" class="btn btn-primary"
+                        onclick="confirmDonation('{{instituicaoID}}', '{{nome}}')">Confirmar Doação</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {{/instituicoes}}
+
+    <script>
+        const donations = {};
+
+        function toggleDonation(instituicaoID, item, button) {
+            if (!donations[instituicaoID]) {
+                donations[instituicaoID] = [];
+            }
+            const itemIndex = donations[instituicaoID].indexOf(item);
+            if (itemIndex === -1) {
+                donations[instituicaoID].push(item);
+                button.classList.add('btn-success');
+                button.classList.remove('btn-primary');
+                button.innerText = 'Adicionado';
+            } else {
+                donations[instituicaoID].splice(itemIndex, 1);
+                button.classList.add('btn-primary');
+                button.classList.remove('btn-success');
+                button.innerText = '+';
+            }
+            console.log('Itens de doação para instituição', instituicaoID, ':', donations[instituicaoID]); // Adicionado log
+        }
+        function confirmDonation(instituicaoID) {
+            const donatedItems = donations[instituicaoID] || [];
+            if (donatedItems.length === 0) {
+                alert('Nenhum item selecionado para doação.');
+                return;
+            }
+
+            console.log('Confirmando doação:', instituicaoID, donatedItems);
+
+            fetch('/confirmar_doacao', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ instituicaoID, items: donatedItems })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Resposta do servidor:', data); // Adicionado log
+                    if (data.success) {
+                        alert('Doação confirmada com sucesso!');
+                        location.reload(); // Recarrega a página para atualizar a lista de necessidades
+                    } else {
+                        alert('Erro ao confirmar doação.');
+                    }
+                })
+                .catch(error => console.error('Erro:', error));
+        }
+    </script>
+
 </body>
+
 </html>
