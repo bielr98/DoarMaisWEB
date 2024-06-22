@@ -1,0 +1,44 @@
+body {
+    background: linear-gradient(to bottom, #127966, #37C89D);
+    min-height: 100vh; /* Garantir que o gradiente cubra toda a altura da página */
+    margin: 0;
+    font-family: Arial, sans-serif; /* Fonte padrão, opcional */
+}
+
+.img-redimensionada {
+    max-width: 100%; /* Garante que a imagem não ultrapasse a largura do container */
+    height: auto; /* Mantém a proporção da imagem */
+    width: 200px; /* Define uma largura fixa, você pode ajustar conforme necessário */
+}
+
+/* importa as fontes */
+@import url('https://fonts.googleapis.com/css2?family=Ultra&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=SF+Pro&display=swap');
+
+.carousel-item {
+    text-align: center;
+    padding-bottom: 20px;
+}
+
+.carousel-item img {
+    max-width: 100%;
+    height: auto;
+}
+
+.carousel-caption-custom {
+    color: white;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
+    margin-top: 15px;
+}
+
+.carousel-caption-custom h3 {
+    font-family: 'Ultra', serif;
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+.carousel-caption-custom p {
+    font-family: 'SF Pro', sans-serif;
+    font-size: 1.25rem;
+    color: black; /* Cor preta para a descrição */
+}
