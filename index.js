@@ -1,5 +1,6 @@
 const express = require("express");
 const mustacheExpress = require("mustache-express");
+const session = require('express-session');
 const db = require("./src/db");
 const UsuarioModel = require("./src/models/usuarioModel");
 const InstituicaoModel = require("./src/models/instituicaoModel");
@@ -16,6 +17,13 @@ app.set('views', __dirname + "/src/views");
 // Middleware para servir arquivos estáticos
 app.use(express.static('public'));
 app.use(express.urlencoded({extended: true}));
+
+// Configurar sessões
+app.use(session({
+    secret: 'seu_segredo', // Troque isso por um segredo seguro
+    resave: false,
+    saveUninitialized: true
+}));
 
 // Rotas
 app.use('/', require('./src/routes/instituicaoRoutes'));

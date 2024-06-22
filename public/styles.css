@@ -42,3 +42,9 @@ body {
     font-size: 1.25rem;
     color: black; /* Cor preta para a descrição */
 }
+
+/* Estilo para o título "Doar Mais" */
+.header-title {
+    font-family: 'Ultra', serif;
+    color: white;
+}

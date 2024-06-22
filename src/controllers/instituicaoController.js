@@ -52,10 +52,9 @@ function loginUsuario(req, res) {
     UsuarioModel.findOne({ where: { email, senha } })
     .then(usuario => {
         if (usuario) {
-            //consulta o banco e pega o primeiro Nome
-            const primeiroNome = usuario.nome.split(' ')[0];
-            //pagina que ele sera redirecionado ao logar e passar o primeiro nome dele
-            res.render('home.html', { nome: primeiroNome }); 
+            // Armazenar o primeiro nome na sessão
+            req.session.nome = usuario.nome.split(' ')[0];
+            res.redirect('/home'); 
         } else {
             res.redirect('/?login=false');
         }
@@ -66,10 +65,20 @@ function loginUsuario(req, res) {
     });
 }
 
+function homeView(req, res) {
+    res.render('home.html', { nome: req.session.nome });
+}
+
+function configuracaoView(req, res) {
+    res.render('configuracao.html', { nome: req.session.nome });
+}
+
 module.exports = {
     indexView,
     criarContaView,
     cadastrarUsuario,
     loginView,
-    loginUsuario
+    loginUsuario,
+    homeView,
+    configuracaoView
 }
