@@ -8,19 +8,16 @@ const InstituicaoModel = db.define('instituicao', {
         allowNull: false,
         primaryKey: true
     },
-    usuarioID: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        references: {
-            model: 'usuarios',
-            key: 'usuarioID'
-        }
-    },
     nome: {
         type: Sequelize.STRING,
         allowNull: false
     },
-    endereco: {
+    email: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        unique: true
+    },
+    senha: {
         type: Sequelize.STRING,
         allowNull: false
     },
@@ -32,14 +29,24 @@ const InstituicaoModel = db.define('instituicao', {
         type: Sequelize.STRING,
         allowNull: false
     },
+    necessidades: {
+        type: Sequelize.TEXT,
+        allowNull: false,
+        get() {
+            const rawValue = this.getDataValue('necessidades');
+            return rawValue ? rawValue.split(',') : [];
+        },
+        set(value) {
+            this.setDataValue('necessidades', value.join(','));
+        }
+    },
     contato: {
         type: Sequelize.STRING,
         allowNull: false
-    },
-    dataFundacao: {
-        type: Sequelize.DATE,
-        allowNull: false
     }
+}, {
+    tableName: 'instituicoes',
+    timestamps: true
 });
 
 module.exports = InstituicaoModel;

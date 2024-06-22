@@ -10,7 +10,7 @@ function criarContaView(req, res) {
 }
 
 function cadastrarUsuario(req, res) {
-    const { nome, email, senha, tipo, endereco, descricao, categoria, contato, dataFundacao } = req.body;
+    const { nome, email, senha, tipo, descricao, categoria, necessidades, contato } = req.body;
     
     UsuarioModel.create({
         nome,
@@ -21,13 +21,13 @@ function cadastrarUsuario(req, res) {
     }).then(usuario => {
         if (tipo === 'Instituicao') {
             InstituicaoModel.create({
-                usuarioID: usuario.usuarioID,
                 nome,
-                endereco,
+                email,
+                senha,
                 descricao,
                 categoria,
-                contato,
-                dataFundacao
+                necessidades: necessidades.split(',').map(item => item.trim()), // Processar necessidades como array
+                contato
             }).then(() => {
                 res.redirect('/?cadastrar_usuario=true');
             }).catch(err => {
@@ -48,13 +48,18 @@ function loginView(req, res) {
 }
 
 function loginUsuario(req, res) {
-    const {email, senha } = req.body;
+    const { email, senha } = req.body;
     UsuarioModel.findOne({ where: { email, senha } })
     .then(usuario => {
         if (usuario) {
-            // Armazenar o primeiro nome na sessão
-            req.session.nome = usuario.nome.split(' ')[0];
-            res.redirect('/home'); 
+            const primeiroNome = usuario.nome.split(' ')[0];
+            req.session.nome = primeiroNome; // Salva o nome na sessão
+            InstituicaoModel.findAll().then(instituicoes => {
+                res.render('home.html', { nome: primeiroNome, instituicoes });
+            }).catch(err => {
+                console.error(err);
+                res.redirect('/');
+            });
         } else {
             res.redirect('/?login=false');
         }
@@ -66,7 +71,12 @@ function loginUsuario(req, res) {
 }
 
 function homeView(req, res) {
-    res.render('home.html', { nome: req.session.nome });
+    InstituicaoModel.findAll().then(instituicoes => {
+        res.render('home.html', { nome: req.session.nome, instituicoes });
+    }).catch(err => {
+        console.error(err);
+        res.redirect('/');
+    });
 }
 
 function configuracaoView(req, res) {
@@ -81,4 +91,4 @@ module.exports = {
     loginUsuario,
     homeView,
     configuracaoView
-}
+};
