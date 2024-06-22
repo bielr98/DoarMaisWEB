@@ -11,6 +11,7 @@ router.post('/acessar', instituicaoController.loginUsuario);
 router.get('/home', instituicaoController.homeView); // Atualizado para usar o controlador
 router.get('/configuracao', instituicaoController.configuracaoView); // Atualizado para usar o controlador
 
+router.post('/editar-usuario', instituicaoController.editarUsuario);
 router.post('/confirmar_doacao', instituicaoController.confirmarDoacao); // Certifique-se de que esta rota está definida
 router.get('/instituicao/:id', instituicaoController.detalhesInstituicaoView); // Nova rota para detalhes da instituição
 

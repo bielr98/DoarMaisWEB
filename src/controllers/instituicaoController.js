@@ -1,5 +1,6 @@
 const UsuarioModel = require("../models/usuarioModel");
 const InstituicaoModel = require("../models/instituicaoModel");
+const { Where } = require("sequelize/lib/utils");
 
 function indexView(req, res) {
   res.render("index.html");
@@ -66,7 +67,8 @@ function loginUsuario(req, res) {
     .then((usuario) => {
       if (usuario) {
         const primeiroNome = usuario.nome.split(" ")[0];
-        req.session.nome = primeiroNome; // Salva o nome na sessão
+        req.session.nome = primeiroNome;
+        req.session.email = usuario.email; // Salva o nome na sessão
         InstituicaoModel.findAll()
           .then((instituicoes) => {
             res.render("home.html", { nome: primeiroNome, instituicoes });
@@ -96,7 +98,7 @@ function homeView(req, res) {
     });
 }
 
-function configuracaoView(req, res) {
+function configuracaoView(req, res) { 
   res.render("configuracao.html", { nome: req.session.nome });
 }
 
@@ -155,6 +157,28 @@ function detalhesInstituicaoView(req, res) {
         });
 }
 
+function editarUsuario(req, res) {
+  const email = req.session.email;
+  const {nome, email: emailNovo, senha} = req.body;
+  UsuarioModel.findOne({ where: {email}})
+  .then((usuario) => {
+    if (nome) {
+      usuario.nome = nome
+    }
+    if (emailNovo) {
+      usuario.email = emailNovo;
+    }
+    if (senha) {
+      usuario.senha = senha;
+    }
+    usuario.save();
+    InstituicaoModel.findAll().then((instituicoes) => {
+      const primeiroNome = usuario.nome.split(" ")[0];
+      res.render("home.html", {nome: primeiroNome, instituicoes});
+    })
+  })
+}
+
 module.exports = {
   indexView,
   criarContaView,
@@ -165,4 +189,5 @@ module.exports = {
   configuracaoView,
   confirmarDoacao,
   detalhesInstituicaoView,
+  editarUsuario,
 };
