@@ -1,6 +1,10 @@
 const express = require("express");
 const mustacheExpress = require("mustache-express");
 const db = require("./src/db");
+const UsuarioModel = require("./src/models/usuarioModel");
+const InstituicaoModel = require("./src/models/instituicaoModel");
+const DoacaoModel = require("./src/models/doacaoModel");
+
 const app = express();
 const PORT = 8080;
 
