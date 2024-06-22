@@ -1,6 +1,7 @@
 const UsuarioModel = require("../models/usuarioModel");
 const InstituicaoModel = require("../models/instituicaoModel");
 const { Where } = require("sequelize/lib/utils");
+const session = require("express-session");
 
 function indexView(req, res) {
   res.render("index.html");
@@ -65,20 +66,25 @@ function loginUsuario(req, res) {
   const { email, senha } = req.body;
   UsuarioModel.findOne({ where: { email, senha } })
     .then((usuario) => {
-      if (usuario) {
-        const primeiroNome = usuario.nome.split(" ")[0];
-        req.session.nome = primeiroNome;
-        req.session.email = usuario.email; // Salva o nome na sessão
-        InstituicaoModel.findAll()
-          .then((instituicoes) => {
-            res.render("home.html", { nome: primeiroNome, instituicoes });
-          })
-          .catch((err) => {
-            console.error(err);
-            res.redirect("/");
-          });
+      if(usuario.tipo == 'Instituicao') {
+        req.session.instituicaoEmail = usuario.email;
+        res.redirect('/perfil-instituicao')
       } else {
-        res.redirect("/?login=false");
+        if (usuario) {
+          const primeiroNome = usuario.nome.split(" ")[0];
+          req.session.nome = primeiroNome;
+          req.session.email = usuario.email; // Salva o nome na sessão
+          InstituicaoModel.findAll()
+            .then((instituicoes) => {
+              res.render("home.html", { nome: primeiroNome, instituicoes });
+            })
+            .catch((err) => {
+              console.error(err);
+              res.redirect("/");
+            });
+        } else {
+          res.redirect("/?login=false");
+        }
       }
     })
     .catch((err) => {
@@ -123,7 +129,7 @@ function confirmarDoacao(req, res) {
             const necessidadesArray = Array.isArray(necessidades) ? necessidades : necessidades.split(',');
 
             const necessidadesAtualizadas = necessidadesArray.filter(
-                (necessidade) => !items.includes(necessidade)
+                (necessidade) => !items.includes(necessidade) 
             );
 
             instituicao.necessidades = necessidadesAtualizadas;
@@ -179,6 +185,71 @@ function editarUsuario(req, res) {
   })
 }
 
+function perfilInstituicao(req, res) {
+  const email = req.session.instituicaoEmail;
+
+  InstituicaoModel.findOne({where: {email}})
+  .then((instituicao) => {
+    let necessidades = instituicao.necessidades
+    const necessidadesArray = Array.isArray(necessidades) ? necessidades : necessidades.split(',');
+    necessidades = necessidadesArray
+    const primeiroNome = instituicao.nome.split(" ")[0];
+    res.render('perfil_instituicao.html', {nome: primeiroNome, necessidades});
+  })
+
+}
+
+function configuracaoInstituicaoView(req, res) {
+  res.render('configuracao-inst.html');
+}
+
+function editarInstituicao(req, res) {
+  const email = req.session.instituicaoEmail;
+  console.log(email);
+  const {nome, email: emailNovo, senha, descricao, categoria, contato} = req.body;
+  InstituicaoModel.findOne({ where: {email}})
+  .then((instituicao) => {
+    console.log(emailNovo);
+    if (nome) {
+      instituicao.nome = nome;
+    }
+    if (emailNovo) {
+      instituicao.email = emailNovo;
+    }
+    if (senha) {
+      instituicao.senha = senha;
+    }
+    if (descricao) {
+      instituicao.descricao = descricao;
+    }
+    if (categoria) {
+      instituicao.categoria = categoria;
+    }
+    if (contato) {
+      instituicao.contato = contato;
+    }
+    instituicao.save();
+    UsuarioModel.findOne({where: {email}})
+    .then((usuario) => {
+      if (nome) {
+        usuario.nome = nome;
+      }
+      if (emailNovo) {
+        usuario.email = emailNovo;
+      }
+      if (senha) {
+        usuario.senha = senha;
+      }
+      usuario.save();                                           
+    })
+    let necessidades = instituicao.necessidades
+    const necessidadesArray = Array.isArray(necessidades) ? necessidades : necessidades.split(',');
+    necessidades = necessidadesArray
+    const primeiroNome = instituicao.nome.split(" ")[0];
+    res.render("perfil_instituicao.html", {nome: primeiroNome, necessidades});
+    })
+}
+
 module.exports = {
   indexView,
   criarContaView,
@@ -190,4 +261,7 @@ module.exports = {
   confirmarDoacao,
   detalhesInstituicaoView,
   editarUsuario,
+  perfilInstituicao,
+  configuracaoInstituicaoView,
+  editarInstituicao,
 };
