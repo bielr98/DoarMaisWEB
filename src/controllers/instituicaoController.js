@@ -1,4 +1,4 @@
-const usuario = require('../models/usuario');
+const Usuario = require('../models/usuario'); // Corrigir a importação
 
 function indexView(req, res){
     res.render('index.html');
@@ -14,12 +14,12 @@ function cadastrarUsuario(req, res){
         senha: req.body.senha,
         perfil: req.body.perfil,
     }
-    Usuario.create(usuario).then(()=>{
+    Usuario.create(usuario).then(() => {
         res.redirect('/?cadastrar_usuario=true');
-    }).catch((err)=>{
+    }).catch((err) => {
         console.log(err);
         res.redirect('/?cadastrar_usuario=false');
-    }); 
+    });
 }
 
 module.exports = {
