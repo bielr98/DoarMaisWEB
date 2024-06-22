@@ -137,6 +137,24 @@ function confirmarDoacao(req, res) {
         });
 }
 
+
+// Função para renderizar a página de detalhes da instituição
+function detalhesInstituicaoView(req, res) {
+    const instituicaoID = req.params.id;
+    InstituicaoModel.findByPk(instituicaoID)
+        .then((instituicao) => {
+            if (!instituicao) {
+                console.error("Instituição não encontrada");
+                return res.redirect('/home');
+            }
+            res.render("instituicao_detalhes.html", { instituicao });
+        })
+        .catch((err) => {
+            console.error("Erro ao buscar a instituição:", err);
+            res.redirect('/home');
+        });
+}
+
 module.exports = {
   indexView,
   criarContaView,
@@ -146,4 +164,5 @@ module.exports = {
   homeView,
   configuracaoView,
   confirmarDoacao,
+  detalhesInstituicaoView,
 };
