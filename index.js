@@ -1,6 +1,7 @@
 const express = require("express");
 const mustacheExpress = require("mustache-express");
 const session = require('express-session');
+const bodyParser = require('body-parser'); // Adicionado
 const db = require("./src/db");
 const UsuarioModel = require("./src/models/usuarioModel");
 const InstituicaoModel = require("./src/models/instituicaoModel");
@@ -17,6 +18,8 @@ app.set('views', __dirname + "/src/views");
 // Middleware para servir arquivos estáticos
 app.use(express.static('public'));
 app.use(express.urlencoded({extended: true}));
+app.use(express.json()); // Adicionado para processar JSON
+app.use(bodyParser.json()); // Adicionado para processar JSON
 
 // Configurar sessões
 app.use(session({
@@ -28,12 +31,12 @@ app.use(session({
 // Rotas
 app.use('/', require('./src/routes/instituicaoRoutes'));
 
-//conectar com DB
+// Conectar com DB
 db.sync(function () {
     console.log('Banco de Dados conectado');
 });
 
-// / Sincronizar o banco de dados e iniciar o servidor
+// Sincronizar o banco de dados e iniciar o servidor
 db.sync().then(() => {
     console.log('Banco de Dados conectado');
     app.listen(PORT, function () {

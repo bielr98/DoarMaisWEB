@@ -105,7 +105,7 @@ function confirmarDoacao(req, res) {
 
     console.log("Recebido para confirmação:", instituicaoID, items);
 
-    if (!instituicaoID || !items) {
+    if (!instituicaoID || !items || items.length === 0) {
         console.error("Dados inválidos recebidos:", req.body);
         return res.json({ success: false });
     }
@@ -117,29 +117,22 @@ function confirmarDoacao(req, res) {
                 return res.json({ success: false });
             }
 
-            console.log(
-                "Necessidades antes da atualização:",
-                instituicao.necessidades
-            );
-            const necessidadesAtualizadas = instituicao.necessidades.filter(
+            const necessidades = instituicao.necessidades;
+            const necessidadesArray = Array.isArray(necessidades) ? necessidades : necessidades.split(',');
+
+            const necessidadesAtualizadas = necessidadesArray.filter(
                 (necessidade) => !items.includes(necessidade)
             );
-            console.log("Necessidades após atualização:", necessidadesAtualizadas);
 
-            instituicao.necessidades = necessidadesAtualizadas.join(","); // Atualizar o campo com a nova lista de necessidades
-            instituicao
-                .save()
-                .then(() => {
-                    console.log("Necessidades atualizadas salvas no banco");
-                    res.json({ success: true });
-                })
-                .catch((err) => {
-                    console.error("Erro ao salvar a instituição:", err);
-                    res.json({ success: false });
-                });
+            instituicao.necessidades = necessidadesAtualizadas;
+            return instituicao.save();
+        })
+        .then(() => {
+            console.log("Necessidades atualizadas salvas no banco");
+            res.json({ success: true });
         })
         .catch((err) => {
-            console.error("Erro ao buscar a instituição:", err);
+            console.error("Erro ao confirmar a doação:", err);
             res.json({ success: false });
         });
 }
