@@ -12,6 +12,11 @@ Este projeto foi desenvolvido dentro do Apple Developer Academy da Universidade 
 - **Cadastro de Instituições:** Instituições podem se registrar e fornecer informações sobre suas necessidades de doações.
 - **Listagem de Instituições:** Exibir uma lista de instituições cadastradas e suas necessidades de doações.
 
+### Video do Projeto
+
+- https://youtu.be/wAIFyoNKKSA?si=YFAGcqA65wOQ28h8
+
+
 ## Instruções para Instalação
 
 ### Pré-requisitos
